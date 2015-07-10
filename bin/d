@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+require 'fidoci'
+
+if ARGV.size == 0
+    puts "Usage: d OPTIONS"
+    puts "or     d COMMAND [arg...]"
+    puts
+    puts "Dockerized development and build workflow."
+    puts
+    puts "Options:"
+    puts
+    puts "  --build [--clean] tag      Builds 'test' image, run tests inside and if successful, tag image by given 'tag'"
+    puts "  --clean                    Removes all containers and images from docker related to this repo"
+    puts
+    puts "Command:"
+    puts "  Running with command will build 'exec' image, start docker-compose with that image and run given command in container"
+    puts
+    puts "Example (for Rails):"
+    puts "  d bundle exec rake db:migrate"
+    puts "  d bundle exec rails s"
+    puts "  d bundle exec rake"
+    exit 1
+end
+
+environment = Fidoci::Main.new
+
+case ARGV[0]
+when '--clean'
+    # d --clean
+    # clean service and intermediate docker images
+    environment.clean
+when '--build'
+    # d --build [--clean] latest-staging
+    # build image, test it and if successful, tag as latest-staging
+    # if --clean is present, will clean all intermediate docker images after
+    if environment.build(ARGV.last, ARGV.size > 1 && ARGV[1] == '--clean')
+        exit 0
+    else
+        exit 1
+    end
+else
+    # d cmd args args
+    # run cmd in exec environment
+    # build container image and run all services if not yet
+    environment.cmd(*ARGV)
+end
