@@ -11,4 +11,6 @@ Gem::Specification.new do |s|
   s.files       = ["lib/fidoci.rb", "lib/fidoci/env.rb", "lib/fidoci/main.rb"]
   s.executables << "d"
   s.homepage    = 'https://github.com/DocX/fidoci'
+
+  s.add_runtime_dependency "docker-api"
 end

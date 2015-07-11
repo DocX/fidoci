@@ -10,8 +10,8 @@ if ARGV.size == 0
     puts
     puts "Options:"
     puts
-    puts "  --build [--clean] tag      Builds 'test' image, run tests inside and if successful, tag image by given 'tag'"
-    puts "  --clean                    Removes all containers and images from docker related to this repo"
+    puts "  --build success-tag [build-id]   Builds 'build_id' image, run tests inside and if successful, tag image by given 'tag'"
+    puts "  --clean                          Removes all containers and images from docker related to this repo"
     puts
     puts "Command:"
     puts "  Running with command will build 'exec' image, start docker-compose with that image and run given command in container"
@@ -31,10 +31,10 @@ when '--clean'
     # clean service and intermediate docker images
     environment.clean
 when '--build'
-    # d --build [--clean] latest-staging
+    # d --build success-tag build-id
     # build image, test it and if successful, tag as latest-staging
     # if --clean is present, will clean all intermediate docker images after
-    if environment.build(ARGV.last, ARGV.size > 1 && ARGV[1] == '--clean')
+    if environment.build(ARGV.drop(1)[0], ARGV.drop(1)[1])
         exit 0
     else
         exit 1
@@ -43,5 +43,5 @@ else
     # d cmd args args
     # run cmd in exec environment
     # build container image and run all services if not yet
-    environment.cmd(*ARGV)
+    exit environment.cmd(*ARGV)
 end
