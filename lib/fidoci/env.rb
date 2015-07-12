@@ -85,7 +85,7 @@ module Fidoci
             }
 
             info "Pushing #{repo_tag}..."
-            image.push(creds, 'repo_tag': repo_tag) do |msg|
+            image.push(creds, 'repo_tag' => repo_tag) do |msg|
                 json = JSON.parse(msg)
                 $stdout.puts json['status']
                 $stdout.puts json['progress'] if json['progress']
