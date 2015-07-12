@@ -17,6 +17,8 @@ module Fidoci
             Docker.options = {
                 read_timeout: 3600
             }
+
+            $stdout.sync = true
         end
 
         # Run command in default "exec" environment

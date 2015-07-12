@@ -1,3 +1,5 @@
+require 'io/console'
+
 module Fidoci
     # Environment configuration of D
     # encapsulates container image building and running commands in it
@@ -165,6 +167,16 @@ module Fidoci
                 config_params(params, link_config)
 
                 debug "Creating container #{link_container_name}..."
+
+                unless Docker::Image.exist?(link_config['image'])
+                    # obtain image
+                    link_image_name, link_image_tag = link_config['image'].split(':')
+                    link_image_tag = 'latest' unless link_image_tag
+
+                    full_image_name = "#{link_image_name}:#{link_image_tag}"
+                    Docker::Image.create(fromImage: full_image_name)
+                end
+
                 container = Docker::Container.create(params)
             end
 
@@ -198,8 +210,12 @@ module Fidoci
             params["Cmd"] = args
 
             docker_exec = Docker::Exec.create(params)
-            result = docker_exec.start!(tty: true, stdin: $stdin) do |msg|
-                $stdout << msg
+            result = nil
+
+            $stdin.raw do
+                result = docker_exec.start!(tty: true, stdin: $stdin) do |msg|
+                    $stdout << msg
+                end
             end
 
             debug "Exited with status #{result[2]}"
@@ -231,8 +247,21 @@ module Fidoci
 
             container = Docker::Container.create(params)
 
-            container.start!.attach(stdin: $stdin, tty: true) do |msg|
+            receiver = ->(msg) {
                 $stdout << msg
+                $stdout.flush
+            }
+
+            if $stdin && $stdin.tty?
+
+                $stdin.raw do
+                    container.start!
+                    lines, cols = IO.console.winsize rescue [60,80]
+                    container.connection.post("/containers/#{container.id}/resize", h: lines, w: cols)
+                    container.attach(tty: true, stdin: $stdin, &receiver)
+                end
+            else
+                container.start!.attach(tty: true, &receiver)
             end
 
             status = container.json['State']['ExitCode']
