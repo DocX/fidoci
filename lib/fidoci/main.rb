@@ -67,6 +67,7 @@ module Fidoci
 
             if success
                 test_env.tag_image(tag)
+                test_env.push(tag)
             end
 
             success

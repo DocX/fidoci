@@ -68,8 +68,29 @@ module Fidoci
         end
 
         def tag_image(tag)
+            info "Tagging images as #{@image}:#{tag}..."
+
             image = Docker::Image.get(image_name)
-            image.tag(@image => tag)
+            image.tag('repo' => @image, 'tag' => tag, 'force' => true)
+        end
+
+        def push(tag)
+            repo_tag = "#{@image}:#{tag}"
+            image = Docker::Image.get(repo_tag)
+
+            creds = {
+                'username' => ENV['DOCKER_REGISTRY_USERNAME'],
+                'password' => ENV['DOCKER_REGISTRY_PASSWORD'],
+                'email' => ENV['DOCKER_REGISTRY_EMAIL']
+            }
+
+            info "Pushing #{repo_tag}..."
+            image.push(creds, 'repo_tag': repo_tag) do |msg|
+                json = JSON.parse(msg)
+                $stdout.puts json['status']
+                $stdout.puts json['progress'] if json['progress']
+                $stdout.puts "Error: #{json['error']}" if json['error']
+            end
         end
 
         def container_name
@@ -320,6 +341,8 @@ module Fidoci
             return false unless env_config['commands']
 
             success = env_config['commands'].all? { |command|
+                info "Running `#{command}`..."
+
                 state = cmd(*command.split(/\s+/))
                 info "Exited with state #{state}"
 
