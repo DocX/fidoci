@@ -142,6 +142,11 @@ module Fidoci
         def stop!
             links.map{|key, config|
                 cname = link_container_name(key)
+ 		if links[key]['shared']
+                    debug "Keeping running #{cname}..."
+                    next
+		end
+
                 begin
                     debug "Stopping container #{cname}..."
                     container = Docker::Container.get(cname)
@@ -165,13 +170,11 @@ module Fidoci
         end
 
         def link_container_name(key)
-            "#{container_name}_#{key}"
+            links[key]['shared'] || "#{container_name}_#{key}"
         end
 
         # starts link containers and return dict name:container_name
         def link_containers
-            links = env_config['links'] || []
-
             links.map {|key, link_config|
                 [key, start_link(link_container_name(key), link_config)]
             }
