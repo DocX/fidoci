@@ -307,6 +307,15 @@ module Fidoci
                 }
             end
 
+            if config['environment_pass']
+                config['environment_pass'].each{|key|
+                    params['Env'] ||= []
+                    params['Env'] << "#{key}=#{ENV[key]}"
+
+                    puts "Warning: Passing environment variable #{key} is not locally set" unless ENV[key]
+                }
+            end
+
             # volumes
             if config['volumes']
                 config['volumes'].each {|v|
