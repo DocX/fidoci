@@ -1,5 +1,8 @@
 # FIDOCI
 
+[![Gem Version](https://badge.fury.io/rb/fidoci.svg)](http://badge.fury.io/rb/fidoci)  [![Dependency Status](https://gemnasium.com/DocX/fidoci.svg)](https://gemnasium.com/DocX/fidoci)
+
+
 Swiss army knife for Dockerized development and continuous integration
 
 Key objectives:
