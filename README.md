@@ -164,12 +164,11 @@ The whole build script can be simple as this:
     - ```shared``` - [string, optional] name of container to use. if conainer with such name is present in host, it will start and link that. It will not stop container on exit. 
 - ```build``` - [object] describing build container. It has the same syntax as ```dev```, only addition is
   - ```commands``` - [list of string] list of commands to run in that order to perform test. 
-  - 
   
 ## TODO
 
 - tests
-- 
+
 
 ## Contributing
 
