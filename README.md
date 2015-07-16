@@ -171,6 +171,7 @@ The whole build script can be simple as this:
 ## TODO
 
 - tests
+- fidoci server?
 
 
 ## Contributing
