@@ -355,7 +355,11 @@ module Fidoci
             success = env_config['commands'].all? { |command|
                 info "Running `#{command}`..."
 
-                state = cmd(*command.split(/\s+/))
+                unless command.is_a? Array
+                    command = command.split(/\s+/)
+                end
+
+                state = cmd(*command)
                 info "Exited with state #{state}"
 
                 state == 0
