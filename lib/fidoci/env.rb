@@ -111,7 +111,7 @@ module Fidoci
             begin
                 debug "Cleaning container #{cname}..."
                 container = Docker::Container.get(cname)
-                container.remove(force: true)
+                container.remove(force: true, v: true)
             rescue
                 debug "Cleaning failed"
                 nil
