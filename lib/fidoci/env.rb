@@ -78,12 +78,24 @@ module Fidoci
             repo_tag = "#{@image}:#{tag}"
             image = Docker::Image.get(repo_tag)
 
-            creds = {
+            if ENV['DOCKER_AUTH_FILE']
+              # load file
+              auth_file = JSON.parse(File.read ENV['DOCKER_AUTH_FILE'])
+              image_parts = @image.split('/')
+	      registry = image_parts.size == 2 ? "https://#{image_parts[0]}" : "https://index.docker.io/v1/"
+              creds = auth_file['auths'][registry]
+              if creds['auth']
+                creds['username'], creds['password'] = Base64.decode64(creds['auth']).split(':', 2)
+                creds.delete 'auth'
+              end
+            else
+              creds = {
                 'username' => ENV['DOCKER_REGISTRY_USERNAME'],
                 'password' => ENV['DOCKER_REGISTRY_PASSWORD'],
                 'email' => ENV['DOCKER_REGISTRY_EMAIL']
-            }
-
+              }
+            end
+   
             info "Pushing #{repo_tag}..."
             image.push(creds, 'repo_tag' => repo_tag) do |msg|
                 json = JSON.parse(msg)

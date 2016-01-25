@@ -31,10 +31,13 @@ when '--clean'
     # clean service and intermediate docker images
     environment.clean
 when '--build'
-    # d --build success-tag build-id
+    # d --build success-tag build-id [registry]
     # build image, test it and if successful, tag as latest-staging
     # if --clean is present, will clean all intermediate docker images after
-    if environment.build(ARGV.drop(1)[0], ARGV.drop(1)[1])
+    registry = ''
+    registry = ARGV.drop(1)[2] + "/" if ARGV.drop(1).size >= 3
+    puts "Using registry: #{registry}"
+    if environment.build(ARGV.drop(1)[0], ARGV.drop(1)[1], registry)
         exit 0
     else
         exit 1

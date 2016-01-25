@@ -40,8 +40,8 @@ module Fidoci
         # Create environment instance with given name
         # name - key that will be used to configure this env
         # id - unique identifier of env that will be used to tag containers and images
-        def env(name, id)
-            Env.new(repository_name, id.to_s, config[name.to_s])
+        def env(name, id, registry = '')
+            Env.new(registry + repository_name, id.to_s, config[name.to_s])
         end
 
         # Clean system
@@ -57,10 +57,10 @@ module Fidoci
         # Build image and run test in it
         # tag - tag name to tag image after successful build and test
         # build_id - unique build_id to be used to identify docker images and containers
-        def build(tag, build_id)
+        def build(tag, build_id, registry = '')
             build_id = SecureRandom.hex(10) unless build_id
 
-            test_env = env(:build, build_id)
+            test_env = env(:build, build_id, registry)
             test_env.clean!
 
             success = test_env.commands
